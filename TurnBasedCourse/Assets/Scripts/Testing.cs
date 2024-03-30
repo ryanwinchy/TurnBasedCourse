@@ -4,19 +4,18 @@ using UnityEngine;
 
 public class Testing : MonoBehaviour
 {
-    GridSystem gridSystem;
-
-    [SerializeField] Transform gridDebugObjectPrefab;
+    [SerializeField] Unit unit;
 
     private void Start()
     {
-        gridSystem = new GridSystem(10, 10, 2f);
-        gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
     }
 
     private void Update()
     {
-        
+        if (Input.GetKeyUp(KeyCode.T))
+        {
+            unit.GetMoveAction().GetValidActionGridPositionList();
+        }
     }
 
 }
