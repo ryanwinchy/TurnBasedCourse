@@ -5,11 +5,16 @@ public class Unit : MonoBehaviour
 
     GridPosition gridPosition;         //Current pos
 
+    BaseAction[] baseActionArray;
     MoveAction moveAction;
+    SpinAction spinAction;
+
 
     private void Awake()
     {
+        baseActionArray = GetComponents<BaseAction>();   //Stores all components attached to this unit that derive (inherit from) base action.So spin and move actions for eg.
         moveAction = GetComponent<MoveAction>();
+        spinAction = GetComponent<SpinAction>();
     }
 
     private void Start()
@@ -33,6 +38,9 @@ public class Unit : MonoBehaviour
     }
 
     public MoveAction GetMoveAction() => moveAction;
+    public SpinAction GetSpinAction() => spinAction;
 
     public GridPosition GetGridPosition() => gridPosition;
+
+    public BaseAction[] GetBaseActionArray() => baseActionArray;
 }

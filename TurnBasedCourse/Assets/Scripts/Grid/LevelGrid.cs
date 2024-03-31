@@ -58,6 +58,8 @@ public class LevelGrid : MonoBehaviour
     public Vector3 GetWorldPosition(GridPosition gridPosition) => gridSystem.GetWorldPosition(gridPosition);  //This is a pass thru function so dont have to expose (make public) vars in this script or the entire grid system. Better abstraction.
     public bool IsValidGridPosition(GridPosition gridPosition) => gridSystem.IsValidGridPosition(gridPosition);   //Pass thru so access LevelGrid not the actual grid system.
 
+    public int GetWidth() => gridSystem.GetWidth();      //Pass thrus.
+    public int GetHeight() => gridSystem.GetHeight();   
     public bool HasAnyUnitOnGridPosition(GridPosition gridPosition)
     {
         GridObject gridObject = gridSystem.GetGridObject(gridPosition);
