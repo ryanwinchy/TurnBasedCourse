@@ -28,4 +28,9 @@ public abstract class BaseAction : MonoBehaviour
 
     public abstract List<GridPosition> GetValidActionGridPositionList();
 
+    public virtual int GetActionPointsCost()  //Basically a default, children actions can replace if they choose. Perhaps attack is 2 points for eg.
+    {
+        return 1;
+    }
+
 }

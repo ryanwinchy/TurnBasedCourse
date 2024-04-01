@@ -9,6 +9,7 @@ public class UnitActionSystem : MonoBehaviour
     public event EventHandler OnSelectedUnitChanged;    //Defines event for when we change unit selection.
     public event EventHandler OnSelectedActionChanged;    //Defines event for when we change action selection.
     public event EventHandler<bool> OnBusyChanged;    //Defines event for when we become busy or stop being busy.
+    public event EventHandler OnActionStarted;
 
     [SerializeField] LayerMask unitLayer;
     [SerializeField] Unit selectedUnit;        //Default is one you put in editor, then changes if select a diff one.
@@ -60,8 +61,14 @@ public class UnitActionSystem : MonoBehaviour
 
             if (selectedAction.IsValidActionGridPosition(mouseGridPosition))    //Uses base, so works for all children actions.
             {
-                SetBusy();
-                selectedAction.TakeAction(mouseGridPosition, ClearBusy);
+                if (selectedUnit.TrySpendActionPointsToTakeAction(selectedAction))   //Checks points, if can take action spends points and takes action.
+                {
+                    SetBusy();                                                 
+                    selectedAction.TakeAction(mouseGridPosition, ClearBusy);
+
+                    OnActionStarted?.Invoke(this, EventArgs.Empty);      //Very compact way to fire event.
+
+                }
             }
 
 

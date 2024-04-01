@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UnitActionSystemUI : MonoBehaviour
 {
     [SerializeField] Transform actionButtonPrefab;         //Can use Transform or GameObject doesnt matter.
     [SerializeField] Transform actionButtonContainerTransform;
+    [SerializeField] TextMeshProUGUI actionPointsText;
 
     List<ActionButtonUI> actionButtonUIList;
 
@@ -18,9 +21,15 @@ public class UnitActionSystemUI : MonoBehaviour
     {
         UnitActionSystem.Instance.OnSelectedUnitChanged += UnitActionSystem_OnSelectedUnitChanged;   //Subscribe to event.
         UnitActionSystem.Instance.OnSelectedActionChanged += UnitActionSystem_OnSelectedActionChanged;   //Subscribe to event.
+        UnitActionSystem.Instance.OnActionStarted += UnitActionSystem_OnActionStarted;   //Subscribe to event.
+        TurnSystem.Instance.OnTurnChanged += TurnSystem_OnTurnChanged;
+        Unit.OnAnyActionPointsChanged += Unit_OnAnyActionPointsChanged;   //Guarantees we update action points just after action points change. No danger of UI event reacting before its actually updated.
+
+
 
         CreateUnitActionButtons();
         UpdateSelectedVisual();
+        UpdateActionPoints();
     }
 
 
@@ -51,11 +60,17 @@ public class UnitActionSystemUI : MonoBehaviour
     {
         CreateUnitActionButtons();
         UpdateSelectedVisual();
+        UpdateActionPoints();
     }
 
     void UnitActionSystem_OnSelectedActionChanged(object sender, EventArgs e)    //Standard event sub, param of sender and no event arguments.
     {
         UpdateSelectedVisual();
+    }
+
+    void UnitActionSystem_OnActionStarted(object sender, EventArgs e)      //Standard event sub, param of sender and no event arguments.
+    {
+        UpdateActionPoints();
     }
 
     public void UpdateSelectedVisual()
@@ -64,6 +79,24 @@ public class UnitActionSystemUI : MonoBehaviour
         {
             actionButtonUI.UpdateSelectedVisual();
         }
+    }
+
+    void UpdateActionPoints()
+    {
+        Unit selectedUnit = UnitActionSystem.Instance.GetSelectedUnit();
+
+
+        actionPointsText.text = "Action Points: " + selectedUnit.GetActionPoints();
+    }
+
+    void TurnSystem_OnTurnChanged(object sender, EventArgs e)
+    {
+        UpdateActionPoints();
+    }
+
+    void Unit_OnAnyActionPointsChanged(object sender, EventArgs e)   //Guarantees we update action points as action points change. No danger of UI event reacting before its actually updated.
+    {
+        UpdateActionPoints();
     }
 
 }
