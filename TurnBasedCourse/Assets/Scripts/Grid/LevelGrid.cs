@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using UnityEngine.EventSystems;
 
 
 //Script to manage the grid, like creating it.
@@ -8,6 +10,8 @@ using UnityEngine;
 public class LevelGrid : MonoBehaviour
 {
     public static LevelGrid Instance { get; private set; }       //Singleton so easy for scripts to ref. Including prefabs which can't reference objects in scene, only in prefab.
+
+    public event EventHandler OnAnyUnitMovedGridPosition;
 
     GridSystem gridSystem;
 
@@ -52,6 +56,8 @@ public class LevelGrid : MonoBehaviour
     {
         RemoveUnitAtGridPosition(fromGridPosition, unit);
         AddUnitAtGridPosition(toGridPosition, unit);
+
+        OnAnyUnitMovedGridPosition?.Invoke(this, EventArgs.Empty);
     }
     public GridPosition GetGridPosition(Vector3 worldPosition) => gridSystem.GetGridPosition(worldPosition);  //This is a pass thru function so dont have to expose (make public) vars in this script or the entire grid system. Better abstraction.
 
@@ -66,7 +72,11 @@ public class LevelGrid : MonoBehaviour
         return gridObject.HasAnyUnit();            // True if has at least one unit.
     }
 
-
+    public Unit GetUnitAtGridPosition(GridPosition gridPosition)
+    {
+        GridObject gridObject = gridSystem.GetGridObject(gridPosition);
+        return gridObject.GetUnit();
+    }
 
 
 }

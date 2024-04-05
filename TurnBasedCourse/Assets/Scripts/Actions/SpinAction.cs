@@ -21,8 +21,7 @@ public class SpinAction : BaseAction
 
         if (totalSpinAmount >= 360f)
         {
-            onActionComplete();   //Running onActionComplete delegate, which is a ref to the ClearBusy() function to set 'isBusy' in unit action system to false.
-            isActive = false;
+            ActionComplete();     //Base func, avoids repeated code on all actions. It is setting this action to inactive, and calling ClearBusy delegate, stored in onActionComplete var.
         }
 
 
@@ -30,10 +29,9 @@ public class SpinAction : BaseAction
 
     public override void TakeAction(GridPosition gridPosition, Action onActionComplete)  //Spin. gridPosition redundant, but must override from base Take Action. Other actions need gridPos. You could actually pass in 'BaseParameters' class then have 'SpinParamters' child and cast to that, but long.
     {
-        isActive = true;
         totalSpinAmount = 0;
+        ActionStart(onActionComplete);                 //Base function, sets this action active, and stores ClearBusy delegate in onAction complete var.
 
-        this.onActionComplete = onActionComplete;       //Storing delegate (var storing function), func its storing is just to clear busy status in UnitActionSystem.
     }
 
 

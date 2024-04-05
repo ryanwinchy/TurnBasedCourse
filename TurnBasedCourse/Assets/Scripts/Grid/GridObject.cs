@@ -50,5 +50,13 @@ public class GridObject
         return unitList.Count > 0;
     }
 
+    public Unit GetUnit()
+    {
+        if (HasAnyUnit())
+            return unitList[0];     //Return first unit in list on this grid space. Called when idle, so can only ever be one. Only time two is when cross eachother during movement.
+        else
+            return null;
+    }
+
 
 }

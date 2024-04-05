@@ -41,6 +41,9 @@ public class UnitActionSystem : MonoBehaviour
         if (isBusy)      //If action already running, don't do another.
             return;
 
+        if (!TurnSystem.Instance.IsPlayerTurn()) //If enemy turn, return, cant take any action.
+            return;
+
         if (EventSystem.current.IsPointerOverGameObject())       //If mouse is over the UI, don't run the movement and action.Without this, will move as you click move if valid spot.
             return;
 
@@ -100,6 +103,9 @@ public class UnitActionSystem : MonoBehaviour
                     {
                         return false;
                     }
+                    if (unit.IsEnemy())      //if unit is enemy, cant select.
+                        return false;
+
                     SetSelectedUnit(unit);
                     return true;
                 }

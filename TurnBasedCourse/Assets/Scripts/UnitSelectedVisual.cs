@@ -34,4 +34,11 @@ public class UnitSelectedVisual : MonoBehaviour
         else
             meshRenderer.enabled = false;
     }
+
+    private void OnDestroy()          //Monobehaviour, called when this game object destroyed.
+    {
+        UnitActionSystem.Instance.OnSelectedUnitChanged -= UnitActionSystem_OnSelectedUnitChanged;    //Unsubscribe when selected unit destroyed (which happens when unit destroyed).
+    }
+
+
 }

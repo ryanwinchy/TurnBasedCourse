@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,23 @@ public class GridSystemVisual : MonoBehaviour
 {
 
     public static GridSystemVisual Instance { get; private set; }       //Singleton so easy for scripts to ref. 
+
+
+
+    [Serializable]     //Custom struct, so add this so shows in editor.
+    public struct GridVisualTypeMaterial                                //FOR DIFF COLOUR GRID TILES.
+    {
+        public GridVisualType gridVisualType;
+        public Material material;
+    }
+
+    public enum GridVisualType { White, Blue, Red, Yellow, RedSoft }
+
+    [SerializeField] List<GridVisualTypeMaterial> gridVisualTypeMaterialList;
+
+
+
+
 
     [SerializeField] Transform gridSystemVisualSinglePrefab;       //Remember, we can access prefab with GameObject or Transform.
 
@@ -38,12 +56,14 @@ public class GridSystemVisual : MonoBehaviour
                 gridSystemVisualSingleArray[x, z] = gridSystemVisualSingleTransform.GetComponent<GridSystemVisualSingle>();  //Populate array with the singles.
             }
         }
+
+        UnitActionSystem.Instance.OnSelectedActionChanged += UnitActionSystem_OnSelectedActionChanged;     //Event subs.
+        LevelGrid.Instance.OnAnyUnitMovedGridPosition += LevelGrid_OnAnyUnitMovedGridPosition;
+
+        UpdateGridVisual();
+
     }
 
-    private void Update()
-    {
-        UpdateGridVisual();
-    }
 
     public void HideAllGridPositionVisuals()
     {
@@ -56,13 +76,37 @@ public class GridSystemVisual : MonoBehaviour
         }
     }
 
-    public void ShowGridPositionList(List<GridPosition> gridPositionList)
+    void ShowGridPositionRange(GridPosition gridPosition, int range, GridVisualType gridVisualType)
+    {
+        List<GridPosition> gridPositionList = new List<GridPosition>();
+
+        for (int x = -range; x <= range; x++)
+        {
+            for (int z = -range; z <= range; z++)
+            {
+                GridPosition testGridPosition = gridPosition + new GridPosition(x, z);
+
+                if (!LevelGrid.Instance.IsValidGridPosition(testGridPosition))      //if invalid (is negative or outside grid bounds), moves on to next.
+                    continue;
+
+                int testDistance = Mathf.Abs(x) + Mathf.Abs(z);       //Mathf as want the positive only, not the negative.
+                if (testDistance > range)        //This is creating a triangle of range instead of a square. Saying add up x and y ( like 5 to right 5 up), will be out of range as max is 7.
+                    continue;
+
+                gridPositionList.Add(testGridPosition);   //if valid, and within TRIANGLE range, add to list.
+            }
+        }
+
+        ShowGridPositionList(gridPositionList, gridVisualType);
+    }
+
+    public void ShowGridPositionList(List<GridPosition> gridPositionList, GridVisualType gridVisualType)
     {
         if (gridPositionList == null)
             return;
 
         foreach (GridPosition gridPosition in gridPositionList)
-            gridSystemVisualSingleArray[gridPosition.x, gridPosition.z].Show();
+            gridSystemVisualSingleArray[gridPosition.x, gridPosition.z].Show(GetGridVisualTypeMaterial(gridVisualType));    //Choose which colour to show.
     }
 
     void UpdateGridVisual()
@@ -70,8 +114,51 @@ public class GridSystemVisual : MonoBehaviour
         HideAllGridPositionVisuals();
 
         BaseAction selectedAction = UnitActionSystem.Instance.GetSelectedAction();
+        Unit selectedUnit = UnitActionSystem.Instance.GetSelectedUnit();
 
-        ShowGridPositionList(selectedAction.GetValidActionGridPositionList());  //For selected action, get valid squares, show them on grid.
+        GridVisualType gridVisualType;
+
+        switch (selectedAction)          //Diff colour grid for diff actions.
+        {
+            default:                                      //Defaults to white.
+            case MoveAction moveAction:
+                gridVisualType = GridVisualType.White;
+                break;
+            case SpinAction spinAction:
+                gridVisualType = GridVisualType.Blue;
+                break;
+            case ShootAction shootAction:
+                gridVisualType = GridVisualType.Red;
+
+                ShowGridPositionRange(selectedUnit.GetGridPosition(), shootAction.GetMaxShootDistance(), GridVisualType.RedSoft);
+                break;
+
+        }
+
+
+
+        ShowGridPositionList(selectedAction.GetValidActionGridPositionList(), gridVisualType);  //For selected action, get valid squares, show them on grid.
+    }
+
+    void UnitActionSystem_OnSelectedActionChanged(object sender, EventArgs e)
+    {
+        UpdateGridVisual();
+    }
+
+    void LevelGrid_OnAnyUnitMovedGridPosition(object sender, EventArgs e)
+    {
+        UpdateGridVisual();
+    }
+
+    Material GetGridVisualTypeMaterial(GridVisualType gridVisualType)   //Give tile colour.
+    {
+        foreach (GridVisualTypeMaterial gridVisualTypeMaterial in gridVisualTypeMaterialList)  //Cycle thru material list.
+        {
+            if (gridVisualTypeMaterial.gridVisualType == gridVisualType)  //if colour matches.
+                return gridVisualTypeMaterial.material;          //Return material.
+        }
+        Debug.LogError("Could not find grid visual type material for GridVisualType" + gridVisualType);
+        return null;
     }
 
 }

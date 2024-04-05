@@ -10,6 +10,7 @@ public class TurnSystem : MonoBehaviour
     public event EventHandler OnTurnChanged;
 
     int turnNumber = 1;
+    bool isPlayerTurn = true;   //True by default so player takes first turn.
 
     
     private void Awake()
@@ -27,12 +28,14 @@ public class TurnSystem : MonoBehaviour
     {
         turnNumber++;
 
+        isPlayerTurn = !isPlayerTurn;  //Each turn it flips (from player turn to not player turn).
+
         OnTurnChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public int GetTurnNumber() => turnNumber;
 
-
+    public bool IsPlayerTurn() => isPlayerTurn;
 
 
 

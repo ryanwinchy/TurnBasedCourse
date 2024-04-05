@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class MoveAction : BaseAction
 {
-    [SerializeField] Animator unitAnimator;
+    public event EventHandler OnStartMoving;
+    public event EventHandler OnStopMoving;
+
     Vector3 targetPosition;
 
     [SerializeField] int maxMoveDistance = 4;
@@ -31,13 +33,13 @@ public class MoveAction : BaseAction
             float moveSpeed = 4f;
             transform.position += moveDirection * moveSpeed * Time.deltaTime;     //Makes framerate independent. Otherwise will move faster if higher frame rate cos update runs more (it runs once per frame).
 
-            unitAnimator.SetBool("Moving", true);
         }
         else
         {
-            isActive = false;
-            unitAnimator.SetBool("Moving", false);
-            onActionComplete();   //Running onActionComplete delegate, which is a ref to the ClearBusy() function to set 'isBusy' in unit action system to false.
+
+            OnStopMoving?.Invoke(this, EventArgs.Empty);      //Fire event for animator to listen to.
+            ActionComplete();     //Base func, avoids repeated code on all actions. It is setting this action to inactive, and calling ClearBusy delegate, stored in onActionComplete var.
+
         }
 
         float rotateSpeed = 10f;  //So rotates faster.
@@ -50,9 +52,10 @@ public class MoveAction : BaseAction
     public override void TakeAction(GridPosition targetGridPosition, Action onActionComplete)        //Move unit to target pos.
     {
         targetPosition = LevelGrid.Instance.GetWorldPosition(targetGridPosition);       //For movement needs world pos, so takes in grid pos and converts it for movement.
-        isActive = true;
+        
+        OnStartMoving?.Invoke(this, EventArgs.Empty);      //Fire event for animator to listen to.
 
-        this.onActionComplete = onActionComplete;
+        ActionStart(onActionComplete);                 //Base function, sets this action active, and stores ClearBusy delegate in onAction complete var.
     }
 
 
