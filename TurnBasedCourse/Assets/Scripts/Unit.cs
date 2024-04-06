@@ -10,13 +10,16 @@ public class Unit : MonoBehaviour
 
     public static event EventHandler OnAnyActionPointsChanged;    //event declaration. Static means fires on ANY unit, not a specific instance.
                                                                   //We made specific event for action points changing. If just used 'turn changed event' , danger of event going to UI before action points actually updating or vise versa. So would have some 0 points bugs.
+    
+    public static event EventHandler OnAnyUnitSpawned;       //Useful for enemy AI. Static, so when this happens on ANY unit, not a specific instance.
+    public static event EventHandler OnAnyUnitDead;
+
+
     GridPosition gridPosition;         //Current pos
 
     HealthSystem healthSystem;
 
     BaseAction[] baseActionArray;
-    MoveAction moveAction;
-    SpinAction spinAction;
 
     int actionPoints = ACTION_POINTS_MAX;
 
@@ -24,8 +27,6 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         baseActionArray = GetComponents<BaseAction>();   //Stores all components attached to this unit that derive (inherit from) base action.So spin and move actions for eg.
-        moveAction = GetComponent<MoveAction>();
-        spinAction = GetComponent<SpinAction>();
         healthSystem = GetComponent<HealthSystem>();
     }
 
@@ -36,6 +37,8 @@ public class Unit : MonoBehaviour
 
         TurnSystem.Instance.OnTurnChanged += TurnSystem_OnTurnChanged;        //Subscribe to turn changing event.
         healthSystem.OnDead += HealthSystem_OnDead;     //Subscribe to on dead.
+
+        OnAnyUnitSpawned?.Invoke(this, EventArgs.Empty);    //Fires unit spawned event.
     }
 
     private void Update()
@@ -53,9 +56,16 @@ public class Unit : MonoBehaviour
         }
 
     }
-
-    public MoveAction GetMoveAction() => moveAction;
-    public SpinAction GetSpinAction() => spinAction;
+                                                             
+    public T GetAction<T>() where T : BaseAction         //T must extend base action, so much be shootAction, SpinAction etc...
+    {                                                            ////////////////This func gets any specified action type. MUCH better than loads of functions for getting each action, refs, and get components. That wouldnt scale if had 50. Now instead of unit.GetMoveAction() it's unit.GetAction<MoveAction>().
+        foreach (BaseAction baseAction in baseActionArray) //Cycles thru all actions attached to this unit. 
+        {
+            if (baseAction is T)             //If action is of type T.
+                return (T)baseAction;       //Return action (cast to specific type T).
+        }
+        return null;
+    }
 
     public GridPosition GetGridPosition() => gridPosition;
 
@@ -114,8 +124,10 @@ public class Unit : MonoBehaviour
         LevelGrid.Instance.RemoveUnitAtGridPosition(gridPosition, this);        //Remove from grid.
 
         Destroy(gameObject);
+
+        OnAnyUnitDead?.Invoke(this, EventArgs.Empty);    //Fires unit spawned event.
     }
 
-    
+    public float GetHealthNormalized() => healthSystem.GetHealthNormalized();
 
 }

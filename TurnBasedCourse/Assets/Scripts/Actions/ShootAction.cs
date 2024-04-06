@@ -94,18 +94,22 @@ public class ShootAction : BaseAction
         return "Shoot";
     }
 
-    public override List<GridPosition> GetValidActionGridPositionList()
+    public override List<GridPosition> GetValidActionGridPositionList()          //Default function if no param, assume you want valid action pos from unit pos.
+    {
+        GridPosition unitGridPosition = unit.GetGridPosition();
+        return GetValidActionGridPositionList(unitGridPosition);
+    }
+
+    public List<GridPosition> GetValidActionGridPositionList(GridPosition gridPosition)   //Can pass any grid pos.
     {
         List<GridPosition> validGridPositionList = new List<GridPosition>();
-
-        GridPosition unitGridPosition = unit.GetGridPosition();
 
         for (int x = -maxShootDistance; x <= maxShootDistance; x++)    //Left to right, cycle thru valid grid positions. Eg if dist 1: -1, 0 and 1.
         {
             for (int z = -maxShootDistance; z <= maxShootDistance; z++)    //Same on z.
             {
                 GridPosition offsetGridPosition = new GridPosition(x, z);       //Cycled vals are an offset. Like -1, 0 and 1 if move dist of 1.
-                GridPosition testGridPosition = unitGridPosition + offsetGridPosition;       //Take current pos and cycle thru all offsets. So if at 4,4 , can go 4,3, 4,4 , 4,5 etc...
+                GridPosition testGridPosition = gridPosition + offsetGridPosition;       //Take current pos and cycle thru all offsets. So if at 4,4 , can go 4,3, 4,4 , 4,5 etc...
 
                 if (!LevelGrid.Instance.IsValidGridPosition(testGridPosition))      //if invalid (is negative or outside grid bounds), moves on to next.
                     continue;
@@ -149,5 +153,22 @@ public class ShootAction : BaseAction
 
     public int GetMaxShootDistance() => maxShootDistance;
 
+
+    public override EnemyAIAction GetEnemyAIAction(GridPosition gridPosition)
+    {
+
+        Unit targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
+
+        return new EnemyAIAction
+        {
+            gridPosition = gridPosition,
+            aiScore = 100 + Mathf.RoundToInt((1- targetUnit.GetHealthNormalized()) * 100f),          //100, so shooting is prioritized. Second part gets health and prioritizes one with least health. * 100f cos normalized if fraction.
+        };
+    }
+
+    public int GetTargetCountAtPosition(GridPosition gridPosition)
+    {
+        return GetValidActionGridPositionList(gridPosition).Count;        //Returns count of valid targets at given position.
+    }
 
 }

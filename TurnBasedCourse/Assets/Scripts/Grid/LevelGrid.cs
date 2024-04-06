@@ -13,7 +13,7 @@ public class LevelGrid : MonoBehaviour
 
     public event EventHandler OnAnyUnitMovedGridPosition;
 
-    GridSystem gridSystem;
+    GridSystem<GridObject> gridSystem;        //make grid system of grid objects, same as before.
 
     [SerializeField] Transform gridDebugObjectPrefab;
 
@@ -28,8 +28,10 @@ public class LevelGrid : MonoBehaviour
         else
             Instance = this;
 
-        gridSystem = new GridSystem(10, 10, 2f);
-        gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
+        gridSystem = new GridSystem<GridObject>(10, 10, 2f, 
+            (GridSystem<GridObject> g, GridPosition gridPosition) => new GridObject(g, gridPosition));    //grid system constructor. Setting up GridSystem of type GridObject (normal way we always did it).  Requires delegate function at end, we are passing in function to create grid objects. It says give a GridSystem and position and will return new grid object of that gridSystem and pos.
+
+        //gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
     }
 
     public void AddUnitAtGridPosition(GridPosition gridPosition, Unit unit)

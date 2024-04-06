@@ -119,7 +119,7 @@ public class UnitActionSystem : MonoBehaviour
     void SetSelectedUnit(Unit unit)
     {
         selectedUnit = unit;
-        SetSelectedAction(unit.GetMoveAction());     //When select a unit, defaults to move action.
+        SetSelectedAction(unit.GetAction<MoveAction>());     //When select a unit, defaults to move action.
 
         OnSelectedUnitChanged?.Invoke(this, EventArgs.Empty);      //Very compact way to fire event. Does null check to see if has subscribers with the ?. If it does, fires event. 'this' says sender is this script, we're not sending any info so EventArgs.empty.
                                                                    //Equivalent to:       if (OnSelectedUnitChanged != null)

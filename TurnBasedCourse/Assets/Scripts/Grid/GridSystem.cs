@@ -1,28 +1,30 @@
 using UnityEngine;
+using System;
 
-public class GridSystem
+//Generic GridSystem so can reuse for path finding instead of duplicating grid.
+public class GridSystem<TGridObject>
 {
     int width;      //Of whole grid.
     int height;
 
     float cellSize;
 
-    GridObject[,] gridObjectsArray;     //2d array of gridObjects. 2d means has two dimensions, can reference objects with two indexs, like 1,1.
+    TGridObject[,] gridObjectsArray;     //2d array of gridObjects. 2d means has two dimensions, can reference objects with two indexs, like 1,1.
 
-    public GridSystem(int width, int height, float cellSize)
-    {
-        this.width = width;
+    public GridSystem(int width, int height, float cellSize, Func<GridSystem<TGridObject>, GridPosition, TGridObject> createGridObject)       //Func is delegate. Params are GridSystem, GridPosition, and returns TGridObject. names this delegate param createGridObject, then use the delegate to create grid objects (squares in grid).
+    {                                                                                  //Func at end is because GridObject requires a ref to GridSystem and GridPosition , so we use a Func delegate which receives the GridSystem and GridPosition and constructs each invidual game object.
+        this.width = width;                                          
         this.height = height;
         this.cellSize = cellSize;
 
-        gridObjectsArray = new GridObject[width, height];     //Initializes 2d array of size width (of width grid), and height (of total grid).
+        gridObjectsArray = new TGridObject[width, height];     //Initializes 2d array of size width (of width grid), and height (of total grid).
 
         for (int x = 0; x < this.width; x++)     //Cycle thru width and height of grid, creating tiles.
         {
             for (int z = 0; z < this.height; z++)   //Z because grid is X and Z. Height refers to concept of 2d grid.
             {
                 GridPosition gridPosition = new GridPosition(x, z);
-                gridObjectsArray[x, z] = new GridObject(this, gridPosition);         //Pass in grid position its iterating thru, and this GridSystem script to construct a Grid Object.
+                gridObjectsArray[x, z] = createGridObject(this, gridPosition);         //Pass in grid position its iterating thru, and this GridSystem script to construct a Grid Object.
             }
         }
 
@@ -51,7 +53,7 @@ public class GridSystem
         }
     }
 
-    public GridObject GetGridObject(GridPosition gridPosition)
+    public TGridObject GetGridObject(GridPosition gridPosition)
     {
         return gridObjectsArray[gridPosition.x, gridPosition.z];
     }

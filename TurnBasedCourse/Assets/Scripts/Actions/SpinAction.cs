@@ -49,5 +49,12 @@ public class SpinAction : BaseAction
         return 2;
     }
 
-
+    public override EnemyAIAction GetEnemyAIAction(GridPosition gridPosition)
+    {
+        return new EnemyAIAction 
+        { 
+            gridPosition = gridPosition,
+            aiScore = 0,          //Will only do spin if cannot do anything else.
+        };
+    }
 }

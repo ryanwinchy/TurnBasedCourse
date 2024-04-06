@@ -7,12 +7,12 @@ using UnityEngine;
 //No monobehaviour so can make constructor.
 public class GridObject
 {
-    GridSystem gridSystem;
+    GridSystem<GridObject> gridSystem;
     public GridPosition gridPosition;
 
     public List<Unit> unitList;    //Has to be list as when moving there is a chance for two units to be on one tile for a second.
 
-    public GridObject(GridSystem gridSystem, GridPosition gridPosition)
+    public GridObject(GridSystem<GridObject> gridSystem, GridPosition gridPosition)
     {
         this.gridSystem = gridSystem;
         this.gridPosition = gridPosition;
