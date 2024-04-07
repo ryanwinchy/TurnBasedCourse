@@ -17,6 +17,10 @@ public class LevelGrid : MonoBehaviour
 
     [SerializeField] Transform gridDebugObjectPrefab;
 
+    [SerializeField] int width;
+    [SerializeField] int height;
+    [SerializeField] float cellSize;
+
 
     private void Awake()
     {
@@ -28,10 +32,15 @@ public class LevelGrid : MonoBehaviour
         else
             Instance = this;
 
-        gridSystem = new GridSystem<GridObject>(10, 10, 2f, 
+        gridSystem = new GridSystem<GridObject>(width, height, cellSize, 
             (GridSystem<GridObject> g, GridPosition gridPosition) => new GridObject(g, gridPosition));    //grid system constructor. Setting up GridSystem of type GridObject (normal way we always did it).  Requires delegate function at end, we are passing in function to create grid objects. It says give a GridSystem and position and will return new grid object of that gridSystem and pos.
 
         //gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
+    }
+
+    private void Start()
+    {
+        Pathfinding.Instance.Setup(width, height, cellSize);
     }
 
     public void AddUnitAtGridPosition(GridPosition gridPosition, Unit unit)

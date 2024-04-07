@@ -313,7 +313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dbb4230e4aab404daa61f2f83f1f221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMoveDistance: 1
+  maxMoveDistance: 4
 --- !u!114 &4069761503018544356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,6 +338,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83029f7be81531d458861b0e483bab69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  obstaclesLayermask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &3811205102785866148
 MonoBehaviour:
   m_ObjectHideFlags: 0

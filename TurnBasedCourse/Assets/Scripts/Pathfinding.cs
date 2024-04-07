@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TerrainTools;
 
@@ -18,6 +19,8 @@ public class Pathfinding : MonoBehaviour
 
     [SerializeField] Transform gridDebugObjectPrefab;
 
+    [SerializeField] LayerMask obstaclesLayerMask;
+
     GridSystem<PathNode> gridSystem;
 
 
@@ -32,14 +35,43 @@ public class Pathfinding : MonoBehaviour
         else
             Instance = this;
 
-        gridSystem = new GridSystem<PathNode>(10, 10, 2f,                                          //Creates grid system of PathNodes (instead of GridObjects, same thing but different grid, for a* algo).
-            (GridSystem<PathNode> g, GridPosition gridPosition) => new PathNode(gridPosition));     //Passes in delegate function, give a gridsystem of pathNodes and a position, function will create path node at position (Squares in grid). This function goes into GridSystem thru a delegate called 'create grid object'.
 
-        gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
+    }
+
+    public void Setup(int width, int height, float cellSize)
+    {
+        this.width = width;
+        this.height = height;
+        this.cellSize = cellSize;
+
+        gridSystem = new GridSystem<PathNode>(width, height, cellSize,                                          //Creates grid system of PathNodes (instead of GridObjects, same thing but different grid, for a* algo).
+    (GridSystem<PathNode> g, GridPosition gridPosition) => new PathNode(gridPosition));     //Passes in delegate function, give a gridsystem of pathNodes and a position, function will create path node at position (Squares in grid). This function goes into GridSystem thru a delegate called 'create grid object'.
+
+        //gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
+
+
+        //OBSTACLE SETUP.
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)           //Cycle thru whole grid.
+            {
+                GridPosition gridPosition = new GridPosition(x, z);    
+
+                Vector3 worldPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);   //Raycast origin, world pos of grid square.
+                float raycastOffsetDistance = 5f;       // This offset is so the origin of the raycast is below the grid square. if it is on it, and wall is on y = 0, the raycast wont work.
+                if (Physics.Raycast(worldPosition + Vector3.down * raycastOffsetDistance, Vector3.up, raycastOffsetDistance * 2, obstaclesLayerMask))   //Fire raycast from -5 below grid pos, shoot up 10, look for obstacles layer.
+                {
+                    GetNode(x, z).SetIsWalkable(false);    //Raycast returns true if hit something.
+                }
+            
+            
+            
+            }
+        }
     }
 
 
-    public List<GridPosition> FindPath(GridPosition startGridPosition, GridPosition endGridPosition)   //params for point A and B, SEE MY NOTES. Returns entire path , list of grid positions.
+    public List<GridPosition> FindPath(GridPosition startGridPosition, GridPosition endGridPosition, out int pathLength)   //params for point A and B, SEE MY NOTES. Returns entire path , list of grid positions.
     {
         List<PathNode> openList = new List<PathNode>();           //Nodes left to search
         List<PathNode> closedList = new List<PathNode>();      //Nodes already searched.
@@ -74,6 +106,7 @@ public class Pathfinding : MonoBehaviour
 
             if (currentNode == endNode)      //Reached final node.
             {
+                pathLength = endNode.GetFCost();
                 return CalculatePath(endNode);
             }
 
@@ -84,6 +117,12 @@ public class Pathfinding : MonoBehaviour
             {
                 if (closedList.Contains(neighbourNode))  //Already searched this one, continue.
                     continue;
+
+                if (!neighbourNode.IsWalkable())      //If neighbour isnt walkable, add to closed list, skip this node.
+                {
+                    closedList.Add(neighbourNode);
+                    continue;
+                }
 
                 int tentativeGCost = currentNode.GetGCost() + CalculateDistance(currentNode.GetGridPosition(), neighbourNode.GetGridPosition());   //G cost of start node to this neighbour node.
 
@@ -104,6 +143,7 @@ public class Pathfinding : MonoBehaviour
         }
 
         //NO MORE NODES TO CHECK, NO PATH FOUND.
+        pathLength = 0;
         return null;
     }
 
@@ -222,5 +262,16 @@ public class Pathfinding : MonoBehaviour
 
     }
 
+    public bool IsWalkableGridPosition(GridPosition gridPosition) => gridSystem.GetGridObject(gridPosition).IsWalkable();
+
+    //This tests if there is actually a path to get there, that its not unreachable.
+    public bool HasPath(GridPosition startGridPosition, GridPosition endGridPosition) => FindPath(startGridPosition, endGridPosition, out int pathLength) != null;
+
+    public int GetPathLength(GridPosition startGridPosition, GridPosition endGridPosition)
+    {
+        FindPath(startGridPosition, endGridPosition, out int pathLength);
+
+        return pathLength;
+    }
 
 }

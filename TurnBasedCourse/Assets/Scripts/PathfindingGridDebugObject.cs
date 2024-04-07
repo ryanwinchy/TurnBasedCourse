@@ -10,6 +10,7 @@ public class PathfindingGridDebugObject : GridDebugObject
     [SerializeField] TextMeshPro gCostText;       //a* components, see my notes. Makes perfect sense.
     [SerializeField] TextMeshPro hCostText;
     [SerializeField] TextMeshPro fCostText;
+    [SerializeField] SpriteRenderer isWalkableSpriteRenderer;
 
     PathNode pathNode;       //node in the pathfinding grid, like a square.
     public override void SetGridObject(object gridObject)
@@ -28,6 +29,7 @@ public class PathfindingGridDebugObject : GridDebugObject
         gCostText.text = pathNode.GetGCost().ToString();
         hCostText.text = pathNode.GetHCost().ToString();
         fCostText.text = pathNode.GetFCost().ToString();
+        isWalkableSpriteRenderer.color = pathNode.IsWalkable() ? Color.green : Color.red;       //Shorthand in line if.
     }
 
 

@@ -13,6 +13,7 @@ public class ShootAction : BaseAction
         public Unit shootingUnit;
     }
 
+    [SerializeField] LayerMask obstaclesLayermask;
     enum State { Aiming, Shooting, Cooloff }      //Basic state machine to show states of the shoot action within this script.
     State state;
     float stateTimer;
@@ -125,6 +126,15 @@ public class ShootAction : BaseAction
 
                 if (targetUnit.IsEnemy() == unit.IsEnemy())        //If target is on your 'team', ignore.
                     continue;
+
+                Vector3 unitWorldPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
+                Vector3 shootDir = (targetUnit.transform.position - unitWorldPosition).normalized;
+                float unitShoulderHeight = 1.7f;   //as transform pos is at unit feet, so needs height offset.
+                if (Physics.Raycast(unitWorldPosition + Vector3.up * unitShoulderHeight, shootDir, Vector3.Distance(unitWorldPosition, targetUnit.transform.position), obstaclesLayermask))
+                {
+                    continue;            //Shoot ray from unit, in shoot dir, to target, on obstacles layer. If hit something, must be blocked by  obstacle, continue. So cannot shoot thru obstacles.
+                }
+                
 
                 validGridPositionList.Add(testGridPosition);        //If get thru all checks, grid pos is valid.
             }

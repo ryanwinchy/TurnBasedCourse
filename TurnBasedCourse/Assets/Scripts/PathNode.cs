@@ -11,6 +11,8 @@ public class PathNode
     int hCost;
     int fCost;
     PathNode cameFromPathNode;    //Stores previous path node it came from. So when get to end can loop back thru optimal path.
+
+    bool isWalkable = true;
     public PathNode(GridPosition gridPosition)
     {
         this.gridPosition = gridPosition;
@@ -38,5 +40,9 @@ public class PathNode
     public PathNode GetCameFromPathNode() =>  cameFromPathNode;
 
     public GridPosition GetGridPosition() => gridPosition;
+
+    public bool IsWalkable() => isWalkable;
+
+    public void SetIsWalkable(bool isWalkable) => this.isWalkable = isWalkable;
 
 }
