@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class ShootAction : BaseAction
 {
-    public event EventHandler<OnShootEventArgs> OnShoot;    //event for shoot animation trigger.
+    public event EventHandler<OnShootEventArgs> OnShoot;    //event for shoot animation trigger. Instance event, so have to track every unit that has ShootAction.
+    public static event EventHandler<OnShootEventArgs> OnAnyShoot;   //Same as above, but on the class itself, not a specific instance, so don't have to track every single unit with an instance of this class.
 
     public class OnShootEventArgs : EventArgs    //Another way to send data on the event. This method is good if a lot of data.
     {
@@ -76,8 +77,9 @@ public class ShootAction : BaseAction
 
     void Shoot()
     {
-        OnShoot?.Invoke(this, new OnShootEventArgs { targetUnit = targetUnit, shootingUnit = unit});      //Fire event for animator to listen to.
-        
+        OnShoot?.Invoke(this, new OnShootEventArgs { targetUnit = targetUnit, shootingUnit = unit});      //Fire event for animator to listen to. This is another way to send info about the event.
+        OnAnyShoot?.Invoke(this, new OnShootEventArgs { targetUnit = targetUnit, shootingUnit = unit });      //same as above but static, listeners dont have to track every single unit with an instance of this action, but just the action itself. Used for the screen shake.
+
         targetUnit.Damage(40);     //For now standard 40. could have different weapons, get the component and have different damages.
     }
 

@@ -264,6 +264,9 @@ public class Pathfinding : MonoBehaviour
 
     public bool IsWalkableGridPosition(GridPosition gridPosition) => gridSystem.GetGridObject(gridPosition).IsWalkable();
 
+    public void SetIsWalkableGridPosition(GridPosition gridPosition, bool isWalkable) => gridSystem.GetGridObject(gridPosition).SetIsWalkable(isWalkable);
+
+
     //This tests if there is actually a path to get there, that its not unreachable.
     public bool HasPath(GridPosition startGridPosition, GridPosition endGridPosition) => FindPath(startGridPosition, endGridPosition, out int pathLength) != null;
 

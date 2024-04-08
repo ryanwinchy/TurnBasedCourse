@@ -64,7 +64,7 @@ public abstract class BaseAction : MonoBehaviour
 
         foreach (GridPosition gridPosition in validGridPositionList)   //Cycle thru all valid grid positions for this action (this is on base so will run on all children actions).
         {
-            EnemyAIAction enemyAIAction = GetEnemyAIAction(gridPosition);    //Generate enemy ai action (score) for all valid grid positions for this action, like moving range or shooting range for eg.
+            EnemyAIAction enemyAIAction = GetEnemyAIAction(gridPosition);    //Generate enemy ai action (score) for all valid grid positions for this action, like moving range or shooting range for eg. Each action child has its own overidden definiton with its own aiScore. Eg shooting is highest so prioritized.
             enemyAIActionList.Add(enemyAIAction);             //Make list of eligible actions.
         }
 
