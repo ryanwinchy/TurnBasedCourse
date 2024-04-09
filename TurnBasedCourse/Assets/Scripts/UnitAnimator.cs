@@ -12,6 +12,8 @@ public class UnitAnimator : MonoBehaviour
     //Transform and game object pretty much interchangeable.
     [SerializeField] Transform bulletProjectilePrefab;
     [SerializeField] Transform shootPointTransform;
+    [SerializeField] Transform rifeTransform;
+    [SerializeField] Transform swordTransform;
 
     private void Awake()
     {
@@ -25,6 +27,29 @@ public class UnitAnimator : MonoBehaviour
         {                                                                     
             shootAction.OnShoot += ShootAction_OnShoot;  //Subscribes to event.
         }
+
+        if (TryGetComponent<SwordAction>(out SwordAction swordAction))
+        {
+            swordAction.OnSwordActionStarted += SwordAction_OnSwordActionStarted;  //Subscribes to event.
+            swordAction.OnSwordActionCompleted += SwordAction_OnSwordActionCompleted;                //Subscribes to event.
+
+        }
+    }
+
+    private void Start()
+    {
+        EquipRifle();
+    }
+
+    private void SwordAction_OnSwordActionCompleted(object sender, EventArgs e)
+    {
+        EquipRifle();
+    }
+
+    private void SwordAction_OnSwordActionStarted(object sender, EventArgs e)
+    {
+        EquipSword();
+        animator.SetTrigger("SwordSlash");
     }
 
     void MoveAction_OnStartMoving(object sender, EventArgs e)
@@ -51,6 +76,16 @@ public class UnitAnimator : MonoBehaviour
         newBulletProjectile.Setup(targetUnitShootAtPosition);
     }
 
+    void EquipSword()
+    {
+        swordTransform.gameObject.SetActive(true);
+        rifeTransform.gameObject.SetActive(false);
+    }
 
+    void EquipRifle()
+    {
+        swordTransform.gameObject.SetActive(false);
+        rifeTransform.gameObject.SetActive(true);
+    }
 
 }

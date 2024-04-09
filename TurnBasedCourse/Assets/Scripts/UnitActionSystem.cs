@@ -58,7 +58,7 @@ public class UnitActionSystem : MonoBehaviour
 
     void HandleSelectedAction()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (InputManager.Instance.IsMouseButtonDownThisFrame())
         {
             GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPosition());
 
@@ -91,9 +91,9 @@ public class UnitActionSystem : MonoBehaviour
     }
     bool TryHandleUnitSelection()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (InputManager.Instance.IsMouseButtonDownThisFrame())
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);   //Takes screen pos (input.mousepos) and makes ray from camera to it.
+            Ray ray = Camera.main.ScreenPointToRay(InputManager.Instance.GetMouseScreenPosition());   //Takes screen pos (input.mousepos) and makes ray from camera to it.
                                                                            //out just means function wont write to raycastHit variable, so var doesnt have to be set up.
             if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, unitLayer))        //Returns true if hits any collider and false if not. Physics always deals with colliders.
             {

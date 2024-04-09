@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Cinemachine;
-using UnityEngine.EventSystems;
+using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
@@ -28,23 +25,11 @@ public class CameraController : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector3 inputMoveDir = new Vector3(0, 0, 0);
-
-        if (Input.GetKey(KeyCode.W))
-            inputMoveDir.z = +1f;
-        if (Input.GetKey(KeyCode.S))
-            inputMoveDir.z = +-1f;
-        if (Input.GetKey(KeyCode.D))
-            inputMoveDir.x = +1f;
-        if (Input.GetKey(KeyCode.A))
-            inputMoveDir.x = -1f;
-
-
-
+        Vector2 inputMoveDir = InputManager.Instance.GetCameraMoveVector();
 
         float moveSpeed = 10f;
 
-        Vector3 moveVector = (transform.forward * inputMoveDir.z) + (transform.right * inputMoveDir.x);      //So moves based on where camera actually facing.
+        Vector3 moveVector = (transform.forward * inputMoveDir.y) + (transform.right * inputMoveDir.x);      //So moves based on where camera actually facing.
 
 
         transform.position += moveVector * moveSpeed * Time.deltaTime;  //Frame rate independent.
@@ -54,11 +39,7 @@ public class CameraController : MonoBehaviour
     {
         Vector3 rotationVector = new Vector3(0, 0, 0);
 
-        //ROTATE CAM
-        if (Input.GetKey(KeyCode.Q))
-            rotationVector.y = -1f;
-        if (Input.GetKey(KeyCode.E))
-            rotationVector.y = 1f;
+        rotationVector.y = InputManager.Instance.GetCameraRotateAmount();
 
         float rotationSpeed = 100f;
 
@@ -67,18 +48,10 @@ public class CameraController : MonoBehaviour
 
     private void HandleZoom()
     {
-        float zoomAmount = 1f;     //No need for smoothing and time.delta time as mouseScroll does one unit at a time anyway.
+        float zoomIncreaseAmount = 1f;     //No need for smoothing and time.delta time as mouseScroll does one unit at a time anyway.
         float zoomSpeed = 5f;
 
-
-        if (Input.mouseScrollDelta.y > 0)        //If scrolling out.
-        {
-            targetFollowOffset.y -= zoomAmount;
-        }
-        if (Input.mouseScrollDelta.y < 0)        //If scrolling in.
-        {
-            targetFollowOffset.y += zoomAmount;
-        }
+        targetFollowOffset.y += InputManager.Instance.GetCameraZoomAmount() * zoomIncreaseAmount;
 
         targetFollowOffset.y = Mathf.Clamp(targetFollowOffset.y, MIN_FOLLOW_Y_OFFSET, MAX_FOLLOW_Y_OFFSET);     //Keeps follow offset between our two zoom limits.
 
@@ -86,3 +59,4 @@ public class CameraController : MonoBehaviour
         cinemachineTransposer.m_FollowOffset = Vector3.Lerp(cinemachineTransposer.m_FollowOffset, targetFollowOffset, Time.deltaTime * zoomSpeed);   //lerp smooths between two points.
     }
 }
+ 
