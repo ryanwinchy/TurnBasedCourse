@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,7 +26,7 @@ public class GridSystemVisual : MonoBehaviour
 
     [SerializeField] Transform gridSystemVisualSinglePrefab;       //Remember, we can access prefab with GameObject or Transform.
 
-    GridSystemVisualSingle[,] gridSystemVisualSingleArray;
+    GridSystemVisualSingle[,,] gridSystemVisualSingleArray;        //Added another dimension, for multiple floors. Could use list, up to you as the dev.
 
     private void Awake()
     {
@@ -42,23 +41,27 @@ public class GridSystemVisual : MonoBehaviour
 
     private void Start()
     {
-        gridSystemVisualSingleArray = new GridSystemVisualSingle[LevelGrid.Instance.GetWidth(), LevelGrid.Instance.GetHeight()];  //Setup array of total grid width and height.
+        gridSystemVisualSingleArray = new GridSystemVisualSingle[LevelGrid.Instance.GetWidth(), LevelGrid.Instance.GetHeight(), LevelGrid.Instance.GetFloorAmount()];  //Setup array of total grid width and height.
 
         for (int x = 0; x < LevelGrid.Instance.GetWidth(); x++)
         {
             for (int z = 0; z < LevelGrid.Instance.GetHeight(); z++)
             {
-                GridPosition gridPosition = new GridPosition(x, z);
+                for (int floor = 0; floor < LevelGrid.Instance.GetFloorAmount(); floor++)  //cycle thru floors.
+                {
 
-                Transform gridSystemVisualSingleTransform = 
-                    Instantiate(gridSystemVisualSinglePrefab, LevelGrid.Instance.GetWorldPosition(gridPosition), Quaternion.identity);
+                    GridPosition gridPosition = new GridPosition(x, z, floor);
 
-                gridSystemVisualSingleArray[x, z] = gridSystemVisualSingleTransform.GetComponent<GridSystemVisualSingle>();  //Populate array with the singles.
+                    Transform gridSystemVisualSingleTransform =
+                        Instantiate(gridSystemVisualSinglePrefab, LevelGrid.Instance.GetWorldPosition(gridPosition), Quaternion.identity);
+
+                    gridSystemVisualSingleArray[x, z, floor] = gridSystemVisualSingleTransform.GetComponent<GridSystemVisualSingle>();  //Populate array with the singles.
+                }
             }
         }
 
         UnitActionSystem.Instance.OnSelectedActionChanged += UnitActionSystem_OnSelectedActionChanged;     //Event subs.
-        LevelGrid.Instance.OnAnyUnitMovedGridPosition += LevelGrid_OnAnyUnitMovedGridPosition;
+        UnitActionSystem.Instance.OnBusyChanged += UnitActionSystem_OnBusyChanged;
 
         UpdateGridVisual();
 
@@ -71,7 +74,12 @@ public class GridSystemVisual : MonoBehaviour
         {
             for (int z = 0; z < gridSystemVisualSingleArray.GetLength(1); z++)
             {
-                gridSystemVisualSingleArray[x, z].Hide();    //Hide all grid system visual singles.
+                for (int floor = 0; floor < LevelGrid.Instance.GetFloorAmount(); floor++)  //cycle thru floors.
+                {
+
+                    gridSystemVisualSingleArray[x, z, floor].Hide();    //Hide all grid system visual singles.
+                }
+
             }
         }
     }
@@ -84,7 +92,7 @@ public class GridSystemVisual : MonoBehaviour
         {
             for (int z = -range; z <= range; z++)
             {
-                GridPosition testGridPosition = gridPosition + new GridPosition(x, z);
+                GridPosition testGridPosition = gridPosition + new GridPosition(x, z, 0);
 
                 if (!LevelGrid.Instance.IsValidGridPosition(testGridPosition))      //if invalid (is negative or outside grid bounds), moves on to next.
                     continue;
@@ -108,7 +116,7 @@ public class GridSystemVisual : MonoBehaviour
         {
             for (int z = -range; z <= range; z++)
             {
-                GridPosition testGridPosition = gridPosition + new GridPosition(x, z);
+                GridPosition testGridPosition = gridPosition + new GridPosition(x, z, 0);
 
                 if (!LevelGrid.Instance.IsValidGridPosition(testGridPosition))      //if invalid (is negative or outside grid bounds), moves on to next.
                     continue;
@@ -128,7 +136,7 @@ public class GridSystemVisual : MonoBehaviour
             return;
 
         foreach (GridPosition gridPosition in gridPositionList)
-            gridSystemVisualSingleArray[gridPosition.x, gridPosition.z].Show(GetGridVisualTypeMaterial(gridVisualType));    //Choose which colour to show.
+            gridSystemVisualSingleArray[gridPosition.x, gridPosition.z, gridPosition.floor].Show(GetGridVisualTypeMaterial(gridVisualType));    //Choose which colour to show.
     }
 
     void UpdateGridVisual()
@@ -179,10 +187,11 @@ public class GridSystemVisual : MonoBehaviour
         UpdateGridVisual();
     }
 
-    void LevelGrid_OnAnyUnitMovedGridPosition(object sender, EventArgs e)
+    private void UnitActionSystem_OnBusyChanged(object sender, bool e)
     {
         UpdateGridVisual();
     }
+
 
     Material GetGridVisualTypeMaterial(GridVisualType gridVisualType)   //Give tile colour.
     {

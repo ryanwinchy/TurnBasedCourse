@@ -3,12 +3,25 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    public static CameraController Instance { get; private set; }
+    
     [SerializeField] CinemachineVirtualCamera cinemachineVirtualCamera;
     CinemachineTransposer cinemachineTransposer;
     Vector3 targetFollowOffset;
 
     const float MIN_FOLLOW_Y_OFFSET = 2f;    //Constants for zoom limits.
-    const float MAX_FOLLOW_Y_OFFSET = 12f;
+    const float MAX_FOLLOW_Y_OFFSET = 15f;
+
+    private void Awake()
+    {
+        if (Instance != null)          //Singleton. If duplicates, destroys the dupe. So one single instance.
+        {
+            Destroy(gameObject);
+            return;
+        }
+        else
+            Instance = this;
+    }
 
     private void Start()
     {
@@ -58,5 +71,13 @@ public class CameraController : MonoBehaviour
 
         cinemachineTransposer.m_FollowOffset = Vector3.Lerp(cinemachineTransposer.m_FollowOffset, targetFollowOffset, Time.deltaTime * zoomSpeed);   //lerp smooths between two points.
     }
+
+
+
+
+    public float GetCameraHeight() => targetFollowOffset.y;
+
+
+
 }
  

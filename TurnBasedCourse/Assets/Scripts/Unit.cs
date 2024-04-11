@@ -32,7 +32,12 @@ public class Unit : MonoBehaviour
 
     private void Start()
     {
+
+
         gridPosition = LevelGrid.Instance.GetGridPosition(transform.position); //Get grid pos from units current position.
+
+        Debug.Log(gridPosition);
+
         LevelGrid.Instance.AddUnitAtGridPosition(gridPosition, this);
 
         TurnSystem.Instance.OnTurnChanged += TurnSystem_OnTurnChanged;        //Subscribe to turn changing event.

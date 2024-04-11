@@ -37,7 +37,7 @@ public class GrenadeAction : BaseAction
         {
             for (int z = -maxThrowDistance; z <= maxThrowDistance; z++)    //Same on z.
             {
-                GridPosition offsetGridPosition = new GridPosition(x, z);       //Cycled vals are an offset. Like -1, 0 and 1 if move dist of 1.
+                GridPosition offsetGridPosition = new GridPosition(x, z, 0);       //Cycled vals are an offset. Like -1, 0 and 1 if move dist of 1.
                 GridPosition testGridPosition = unitGridPosition + offsetGridPosition;       //Take current pos and cycle thru all offsets. So if at 4,4 , can go 4,3, 4,4 , 4,5 etc...
 
                 if (!LevelGrid.Instance.IsValidGridPosition(testGridPosition))      //if invalid (is negative or outside grid bounds), moves on to next.

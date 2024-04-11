@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.PackageManager;
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public class DestructibleCrate : MonoBehaviour
 {

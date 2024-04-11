@@ -38,6 +38,8 @@ public class UnitActionSystem : MonoBehaviour
 
     private void Update()
     {
+
+
         if (isBusy)      //If action already running, don't do another.
             return;
 
@@ -60,7 +62,7 @@ public class UnitActionSystem : MonoBehaviour
     {
         if (InputManager.Instance.IsMouseButtonDownThisFrame())
         {
-            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPosition());
+            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPositionHitVisible());
 
             if (selectedAction.IsValidActionGridPosition(mouseGridPosition))    //Uses base, so works for all children actions.
             {

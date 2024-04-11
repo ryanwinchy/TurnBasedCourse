@@ -237,6 +237,7 @@ GameObject:
   - component: {fileID: 3788188233101331911}
   - component: {fileID: 4460387245202268587}
   - component: {fileID: 1199800630424451530}
+  - component: {fileID: 1612019585637559361}
   - component: {fileID: 4069761503018544356}
   - component: {fileID: 7210198463004494883}
   - component: {fileID: 3811205102785866148}
@@ -317,6 +318,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxMoveDistance: 4
+--- !u!114 &1612019585637559361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3173131897392311576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24f6638c07bf936449f54267340617e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dynamicFloorPosition: 1
+  ignoreRendererList:
+  - {fileID: 1488100024365016474}
 --- !u!114 &4069761503018544356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,7 +359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obstaclesLayermask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 320
 --- !u!114 &3811205102785866148
 MonoBehaviour:
   m_ObjectHideFlags: 0

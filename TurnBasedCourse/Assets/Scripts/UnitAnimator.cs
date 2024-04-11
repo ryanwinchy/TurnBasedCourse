@@ -21,6 +21,7 @@ public class UnitAnimator : MonoBehaviour
         {                                                                     //Need this check because some units will not have some actions.
             moveAction.OnStartMoving += MoveAction_OnStartMoving;  //Subscribes to event.
             moveAction.OnStopMoving += MoveAction_OnStopMoving;  //Subscribes to event.
+            moveAction.OnChangedFloorsStarted += MoveAction_OnChangedFloorsStarted;
         }
 
         if (TryGetComponent<ShootAction>(out ShootAction shootAction))     
@@ -33,6 +34,18 @@ public class UnitAnimator : MonoBehaviour
             swordAction.OnSwordActionStarted += SwordAction_OnSwordActionStarted;  //Subscribes to event.
             swordAction.OnSwordActionCompleted += SwordAction_OnSwordActionCompleted;                //Subscribes to event.
 
+        }
+    }
+
+    private void MoveAction_OnChangedFloorsStarted(object sender, MoveAction.OnChangeFloorsStartedEventArgs e)
+    {
+        if (e.targetGridPosition.floor > e.unitGridPosition.floor)  //Travelling up.
+        {
+            animator.SetTrigger("JumpUp");
+        }
+        else
+        {
+            animator.SetTrigger("JumpDown");
         }
     }
 
@@ -71,7 +84,8 @@ public class UnitAnimator : MonoBehaviour
 
         Vector3 targetUnitShootAtPosition = e.targetUnit.transform.position;
 
-        targetUnitShootAtPosition.y = shootPointTransform.position.y;       //So shoots at same level as shoot point, not at feet of target.
+        float unitShoulderHeightOffset = 1.7f;
+        targetUnitShootAtPosition.y += unitShoulderHeightOffset;       //So shoots at same level as shoot point, not at feet of target.
 
         newBulletProjectile.Setup(targetUnitShootAtPosition);
     }

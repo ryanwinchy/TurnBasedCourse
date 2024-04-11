@@ -8,14 +8,18 @@ public class GridSystem<TGridObject>
     int height;
 
     float cellSize;
+    int floor;
+    float floorHeight;
 
     TGridObject[,] gridObjectsArray;     //2d array of gridObjects. 2d means has two dimensions, can reference objects with two indexs, like 1,1.
 
-    public GridSystem(int width, int height, float cellSize, Func<GridSystem<TGridObject>, GridPosition, TGridObject> createGridObject)       //Func is delegate. Params are GridSystem, GridPosition, and returns TGridObject. names this delegate param createGridObject, then use the delegate to create grid objects (squares in grid).
+    public GridSystem(int width, int height, float cellSize, int floor, float floorHeight, Func<GridSystem<TGridObject>, GridPosition, TGridObject> createGridObject)       //Func is delegate. Params are GridSystem, GridPosition, and returns TGridObject. names this delegate param createGridObject, then use the delegate to create grid objects (squares in grid).
     {                                                                                  //Func at end is because GridObject requires a ref to GridSystem and GridPosition , so we use a Func delegate which receives the GridSystem and GridPosition and constructs each invidual game object.
         this.width = width;                                          
         this.height = height;
         this.cellSize = cellSize;
+        this.floor = floor;
+        this.floorHeight = floorHeight;
 
         gridObjectsArray = new TGridObject[width, height];     //Initializes 2d array of size width (of width grid), and height (of total grid).
 
@@ -23,18 +27,18 @@ public class GridSystem<TGridObject>
         {
             for (int z = 0; z < this.height; z++)   //Z because grid is X and Z. Height refers to concept of 2d grid.
             {
-                GridPosition gridPosition = new GridPosition(x, z);
+                GridPosition gridPosition = new GridPosition(x, z, floor);
                 gridObjectsArray[x, z] = createGridObject(this, gridPosition);         //Pass in grid position its iterating thru, and this GridSystem script to construct a Grid Object.
             }
         }
 
     }
-
-    public Vector3 GetWorldPosition(GridPosition gridPosition) => new Vector3(gridPosition.x, 0, gridPosition.z) * cellSize;            //Converts width and height of grid pos given to world point.
+                                                                                                                               //This part added so can have multiple floors.
+    public Vector3 GetWorldPosition(GridPosition gridPosition) => new Vector3(gridPosition.x, 0, gridPosition.z) * cellSize + new Vector3(0, gridPosition.floor * floorHeight, 0);            //Converts width and height of grid pos given to world point.
 
     public GridPosition GetGridPosition(Vector3 _worldPosition)       //comverts world pos to grid pos, like one to right one up is (1,1). As if cell size is diff for each grid, gonna be different.
     {
-        return new GridPosition(Mathf.RoundToInt(_worldPosition.x / cellSize), Mathf.RoundToInt(_worldPosition.z / cellSize));        //Pos has to be ints.
+        return new GridPosition(Mathf.RoundToInt(_worldPosition.x / cellSize), Mathf.RoundToInt(_worldPosition.z / cellSize), floor);        //Pos has to be ints.
     }
 
     public void CreateDebugObjects(Transform debugPrefab)
@@ -43,7 +47,7 @@ public class GridSystem<TGridObject>
         {
             for (int z = 0; z < this.height; z++)
             {
-                GridPosition gridPosition = new GridPosition(x, z);
+                GridPosition gridPosition = new GridPosition(x, z, floor);
 
                 Transform debugTransform = GameObject.Instantiate(debugPrefab, GetWorldPosition(gridPosition), Quaternion.identity);    //Have to do Gameobject.Instantiate, as no monobehaviour.
 
@@ -63,7 +67,8 @@ public class GridSystem<TGridObject>
         return gridPosition.x >= 0 &&       //Returns true if within bounds of grid.
                 gridPosition.z >= 0 &&
                 gridPosition.x < width &&
-                gridPosition.z < height;
+                gridPosition.z < height &&
+                gridPosition.floor == floor;
     }
 
     public int GetWidth() => width;
